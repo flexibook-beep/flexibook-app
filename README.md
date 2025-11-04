@@ -1,6 +1,8 @@
 # 🌟 Flexibook — Flexible Booking & Payments for Teachers
+(https://flexibook-app.vercel.app/)
 
 > A full-stack web application that allows teachers to publish their availability and students to book lessons flexibly with integrated payments and calendar sync.
+
 
 ---
 
