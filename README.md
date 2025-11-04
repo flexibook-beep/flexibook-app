@@ -46,4 +46,5 @@ Teachers can publish available time slots, students can book and pay instantly, 
 ## 👩‍💻 Team members
 Ying Zhang, Emory Ryan Worsham, Samuel Fogbawa Turay, Hillary William Okoth
 
-
+## ❝ ❞ Team members Quotes
+* __Samuel Turay:__ _"Take therefore no thought for the morrow: for the morrow shall take thought for the things of itself. Sufficient unto the day is the evil thereof."_ (Matthew 6:34)
