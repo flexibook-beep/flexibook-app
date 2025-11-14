@@ -1,24 +1,18 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { redirect } from "next/navigation";
 import { Navbar } from "@/components/navbar";
 import { StudentDashboard } from "@/components/dashboard/student-dashboard";
 import { TeacherDashboard } from "@/components/dashboard/teacher-dashboard";
 
-export default async function DashboardPage() {
-  // REAL AUTH (uncomment this when auth is implemented)
-  /*
-  const session = await getServerSession(authOptions);
+interface Props {
+  searchParams: { role?: string };
+}
 
-  if (!session) {
-    redirect("/auth/signin");
-  }
-  */
-
+export default function DashboardPage({ searchParams }: Props) {
   // TEMPORARY FAKE SESSION (delete this entire block after auth works)
+  const roleFromQuery = searchParams.role || "STUDENT";
+
   const session = {
     user: {
-      role: "STUDENT", // or "TEACHER"
+      role: roleFromQuery.toUpperCase(), // STUDENT or TEACHER
     },
   };
 
