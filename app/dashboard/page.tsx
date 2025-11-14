@@ -6,18 +6,16 @@ import { StudentDashboard } from "@/components/dashboard/student-dashboard";
 import { TeacherDashboard } from "@/components/dashboard/teacher-dashboard";
 
 export default async function DashboardPage() {
-  /* REAL AUTH (uncomment this after auth is implemented by Samuel)
-
+  // REAL AUTH (uncomment this when auth is implemented)
+  /*
   const session = await getServerSession(authOptions);
 
   if (!session) {
     redirect("/auth/signin");
   }
-
   */
 
-  /* Fake session to show the dashboard pages
-   (delete this when auth works) */
+  // TEMPORARY FAKE SESSION (delete this entire block after auth works)
   const session = {
     user: {
       role: "STUDENT", // or "TEACHER"
