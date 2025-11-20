@@ -49,17 +49,45 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Invalid credentials");
         }
 
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          image: user.image,
-        };
+        // Returning the full user object here is a good practice.
+        // It keeps things simple, makes future changes to the User model easier to handle,
+        // and helps with type safety throughout the application.
+        return user;
       },
     }),
   ],
   callbacks: {
+    async signIn({ user, account, profile }) {
+      // This callback is super useful for controlling who can sign in and where they go afterwards.
+      // For example, we can check if a user is allowed to sign in, or redirect them based on their role.
+      if (account?.provider === "credentials") {
+        // If it's a credentials sign-in, we just let it proceed.
+        // The authorization logic already handled the validation.
+        return true;
+      }
+      if (account?.provider === "google") {
+        // For Google sign-ins, we need to check if the user already exists in our database.
+        const userExists = await prisma.user.findUnique({
+          where: { email: user.email! },
+        });
+        // If the user exists, great, just let them sign in.
+        if (userExists) {
+          return true;
+        }
+        // If it's a new Google user, we'll create an account for them.
+        // By default, they'll get the 'STUDENT' role as defined in our schema.
+        await prisma.user.create({
+          data: {
+            email: user.email!,
+            name: user.name!,
+            image: user.image!,
+          },
+        });
+        return true;
+      }
+      // If for some reason we get here, it means the sign-in wasn't handled, so we deny it.
+      return false;
+    },
     async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
