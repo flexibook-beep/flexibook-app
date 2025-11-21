@@ -1,3 +1,5 @@
+//created a fake user. Don't mind it. Folder can be deleted with zero issues
+
 import "dotenv/config";
 import { prisma } from "../lib/prisma"; // adjust path if needed
 import { hash } from "bcryptjs";
