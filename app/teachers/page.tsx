@@ -18,13 +18,13 @@ export default function TeachersPage() {
 
   useEffect(() => {
     if (status === "loading") return
-    
+
     // Redirect teachers to their dashboard
     if (session?.user.role === "TEACHER") {
       router.push("/dashboard")
       return
     }
-    
+
     fetchTeachers()
   }, [session, status, router])
 
@@ -66,6 +66,18 @@ export default function TeachersPage() {
           <p className="text-xl text-gray-600" style={{ fontFamily: "'Inter', sans-serif" }}>
             Browse our qualified language teachers
           </p>
+        </div>
+
+        {/* Breadcrumb navigation */}
+        <div className="mb-8 text-sm text-gray-500 flex items-center gap-2" style={{ fontFamily: "'Inter', sans-serif" }}>
+          <span
+            className="hover:underline cursor-pointer"
+            onClick={() => router.push("/dashboard?role=student")}
+          >
+            Dashboard
+          </span>
+          <span>/</span>
+          <span className="font-semibold text-gray-900">Teachers</span>
         </div>
 
         {loading ? (
