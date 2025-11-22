@@ -33,13 +33,13 @@ export default function BookTeacherPage() {
 
   useEffect(() => {
     if (status === "loading") return
-    
+
     // Redirect teachers to their dashboard
     if (session?.user.role === "TEACHER") {
       router.push("/dashboard")
       return
     }
-    
+
     fetchTeacher()
   }, [session, status, router])
 
@@ -195,6 +195,25 @@ export default function BookTeacherPage() {
           <p className="text-xl text-gray-600" style={{ fontFamily: "'Inter', sans-serif" }}>Choose your preferred date, time, and duration</p>
         </div>
 
+        {/* Breadcrumb navigation */}
+        <div className="mb-8 text-sm text-gray-500 flex items-center gap-2" style={{ fontFamily: "'Inter', sans-serif" }}>
+          <span
+            className="hover:underline cursor-pointer"
+            onClick={() => router.push("/dashboard?role=student")}
+          >
+            Dashboard
+          </span>
+          <span>/</span>
+          <span
+            className="hover:underline cursor-pointer"
+            onClick={() => router.push("/teachers")}
+          >
+            Teachers
+          </span>
+          <span>/</span>
+          <span className="font-semibold text-gray-900">Book Lesson</span>
+        </div>
+
         <div className="grid md:grid-cols-3 gap-8">
           {/* Teacher Info */}
           <div className="md:col-span-1 backdrop-blur-xl bg-white/80 rounded-3xl shadow-2xl p-8 border border-gray-200/60 h-fit sticky top-24">
@@ -255,11 +274,10 @@ export default function BookTeacherPage() {
                         key={dur}
                         type="button"
                         onClick={() => setDuration(dur)}
-                        className={`p-4 rounded-2xl border-2 transition-all text-center ${
-                          duration === dur
+                        className={`p-4 rounded-2xl border-2 transition-all text-center ${duration === dur
                             ? "border-gray-800 bg-gray-800 text-white shadow-lg"
                             : "border-gray-300 bg-white text-gray-700 hover:border-gray-500"
-                        }`}
+                          }`}
                       >
                         <div className="font-black text-lg" style={{ fontFamily: "'Inter', sans-serif" }}>{dur} min</div>
                         <div className={`text-sm font-semibold ${duration === dur ? "text-white/80" : "text-gray-500"}`} style={{ fontFamily: "'Inter', sans-serif" }}>
@@ -287,14 +305,13 @@ export default function BookTeacherPage() {
                         type="button"
                         onClick={() => hasAvailability && setSelectedDate(date)}
                         disabled={!hasAvailability}
-                        className={`p-3 rounded-xl border-2 text-center transition-all ${
-                          selectedDate &&
-                          format(selectedDate, "yyyy-MM-dd") === format(date, "yyyy-MM-dd")
+                        className={`p-3 rounded-xl border-2 text-center transition-all ${selectedDate &&
+                            format(selectedDate, "yyyy-MM-dd") === format(date, "yyyy-MM-dd")
                             ? "border-gray-800 bg-gray-800 text-white shadow-lg"
                             : hasAvailability
-                            ? "border-gray-300 bg-white text-gray-700 hover:border-gray-500"
-                            : "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"
-                        }`}
+                              ? "border-gray-300 bg-white text-gray-700 hover:border-gray-500"
+                              : "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"
+                          }`}
                         style={{ fontFamily: "'Inter', sans-serif" }}
                       >
                         <div className="text-xs font-bold">{format(date, "EEE")}</div>
@@ -320,11 +337,10 @@ export default function BookTeacherPage() {
                           key={time}
                           type="button"
                           onClick={() => setSelectedTime(time)}
-                          className={`p-3 rounded-xl border-2 text-sm font-bold transition-all ${
-                            selectedTime === time
+                          className={`p-3 rounded-xl border-2 text-sm font-bold transition-all ${selectedTime === time
                               ? "border-gray-800 bg-gray-800 text-white shadow-lg"
                               : "border-gray-300 bg-white text-gray-700 hover:border-gray-500"
-                          }`}
+                            }`}
                           style={{ fontFamily: "'Inter', sans-serif" }}
                         >
                           {time}
