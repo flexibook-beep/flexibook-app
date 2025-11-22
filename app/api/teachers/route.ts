@@ -7,6 +7,13 @@ export const dynamic = 'force-dynamic'
 
 export async function GET(req: NextRequest) {
   try {
+    // Check if the user is logged in
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    // Optionally, you can read search params to filter teachers
     const searchParams = req.nextUrl.searchParams
     const language = searchParams.get("language")
     const minRate = searchParams.get("minRate")

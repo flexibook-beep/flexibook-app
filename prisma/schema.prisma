@@ -3,8 +3,165 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_UNPOOLED")
+}
+
+model User {
+  id                    String    @id @default(cuid())
+  email                 String    @unique
+  emailVerified         DateTime?
+  name                  String?
+  image                 String?
+  password              String?
+  role                  Role      @default(STUDENT)
+  timezone              String    @default("UTC")
+  googleAccessToken     String?
+  googleRefreshToken    String?
+  googleCalendarEnabled Boolean   @default(false)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  accounts              Account[]
+  bookingsAsStudent     Booking[] @relation("StudentBookings")
+  bookingsAsTeacher     Booking[] @relation("TeacherBookings")
+  sessions              Session[]
+  teacher               Teacher?
+
+  @@index([email])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Teacher {
+  id              String         @id @default(cuid())
+  userId          String         @unique
+  bio             String?
+  hourlyRate      Float
+  languages       String[]
+  yearsExperience Int?
+  isActive        Boolean        @default(true)
+  bufferTime      Int            @default(10)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  availabilities  Availability[]
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isActive])
+}
+
+model Availability {
+  id          String    @id @default(cuid())
+  teacherId   String
+  dayOfWeek   Int?
+  startTime   String
+  endTime     String
+  date        DateTime?
+  isRecurring Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  teacher     Teacher   @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@index([teacherId])
+  @@index([date])
+  @@index([dayOfWeek])
+}
+
+model Booking {
+  id              String         @id @default(cuid())
+  studentId       String
+  teacherId       String
+  startTime       DateTime
+  endTime         DateTime
+  durationMinutes Int
+  status          BookingStatus  @default(PENDING_PAYMENT)
+  meetingLink     String?
+  notes           String?
+  cancelReason    String?
+  studentTimezone String
+  teacherTimezone String
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  student         User           @relation("StudentBookings", fields: [studentId], references: [id])
+  teacher         User           @relation("TeacherBookings", fields: [teacherId], references: [id])
+  notifications   Notification[]
+  payment         Payment?
+
+  @@index([studentId])
+  @@index([teacherId])
+  @@index([startTime])
+  @@index([status])
+}
+
+model Payment {
+  id              String        @id @default(cuid())
+  bookingId       String        @unique
+  amount          Float
+  currency        String        @default("usd")
+  status          PaymentStatus @default(PENDING)
+  stripePaymentId String?       @unique
+  stripeRefundId  String?
+  refundAmount    Float?
+  refundedAt      DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  booking         Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([bookingId])
+  @@index([stripePaymentId])
+}
+
+model Notification {
+  id          String             @id @default(cuid())
+  bookingId   String
+  type        NotificationType
+  status      NotificationStatus @default(PENDING)
+  scheduledAt DateTime
+  sentAt      DateTime?
+  retryCount  Int                @default(0)
+  error       String?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  booking     Booking            @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([bookingId])
+  @@index([status, scheduledAt])
 }
 
 enum Role {
@@ -42,167 +199,3 @@ enum NotificationStatus {
   SENT
   FAILED
 }
-
-model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  emailVerified DateTime?
-  name          String?
-  image         String?
-  password      String?
-  role          Role      @default(STUDENT)
-  timezone      String    @default("UTC")
-  googleAccessToken  String? @db.Text
-  googleRefreshToken String? @db.Text
-  googleCalendarEnabled Boolean @default(false)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  accounts      Account[]
-  sessions      Session[]
-  teacher       Teacher?
-  bookingsAsStudent Booking[] @relation("StudentBookings")
-  bookingsAsTeacher Booking[] @relation("TeacherBookings")
-
-  @@index([email])
-}
-
-model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-  @@index([userId])
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-}
-
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
-}
-
-model Teacher {
-  id              String   @id @default(cuid())
-  userId          String   @unique
-  bio             String?  @db.Text
-  hourlyRate      Float
-  languages       String[]
-  yearsExperience Int?
-  isActive        Boolean  @default(true)
-  bufferTime      Int      @default(10) // minutes between sessions
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  availabilities Availability[]
-
-  @@index([userId])
-  @@index([isActive])
-}
-
-model Availability {
-  id         String   @id @default(cuid())
-  teacherId  String
-  dayOfWeek  Int?     // 0-6, null for specific dates
-  startTime  String   // HH:mm format
-  endTime    String   // HH:mm format
-  date       DateTime? // for specific dates
-  isRecurring Boolean @default(true)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  teacher Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
-
-  @@index([teacherId])
-  @@index([date])
-  @@index([dayOfWeek])
-}
-
-model Booking {
-  id              String        @id @default(cuid())
-  studentId       String
-  teacherId       String
-  startTime       DateTime
-  endTime         DateTime
-  durationMinutes Int
-  status          BookingStatus @default(PENDING_PAYMENT)
-  meetingLink     String?
-  notes           String?       @db.Text
-  cancelReason    String?
-  studentTimezone String
-  teacherTimezone String
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-
-  student       User          @relation("StudentBookings", fields: [studentId], references: [id])
-  teacher       User          @relation("TeacherBookings", fields: [teacherId], references: [id])
-  payment       Payment?
-  notifications Notification[]
-
-  @@index([studentId])
-  @@index([teacherId])
-  @@index([startTime])
-  @@index([status])
-}
-
-model Payment {
-  id                String        @id @default(cuid())
-  bookingId         String        @unique
-  amount            Float
-  currency          String        @default("usd")
-  status            PaymentStatus @default(PENDING)
-  stripePaymentId   String?       @unique
-  stripeRefundId    String?
-  refundAmount      Float?
-  refundedAt        DateTime?
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
-
-  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-
-  @@index([bookingId])
-  @@index([stripePaymentId])
-}
-
-model Notification {
-  id          String             @id @default(cuid())
-  bookingId   String
-  type        NotificationType
-  status      NotificationStatus @default(PENDING)
-  scheduledAt DateTime
-  sentAt      DateTime?
-  retryCount  Int                @default(0)
-  error       String?
-  createdAt   DateTime           @default(now())
-  updatedAt   DateTime           @updatedAt
-
-  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-
-  @@index([bookingId])
-  @@index([status, scheduledAt])
-}
-

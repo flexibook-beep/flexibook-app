@@ -1,33 +1,53 @@
 // middleware.ts
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { withAuth } from 'next-auth/middleware';
 
-// Once auth is implemented, uncomment the following line
-// export { default } from "next-auth/middleware";
+// The `withAuth` middleware augments the request with the user's token.
+export default withAuth(
+  function middleware(req: NextRequest) {
+    const pathname = req.nextUrl.pathname;
+    // The token is available on the request because the `authorized` is executed.
+    const token = (req as any).nextauth.token;
 
-// Once auth is implemented, also uncomment the following:
-/*
+    // Redirect students trying to access teacher routes.
+    if (pathname.startsWith('/teachers') && token?.role === 'STUDENT') {
+      return NextResponse.redirect(new URL('/dashboard', req.url));
+    }
+
+    // Redirect teachers trying to access the student dashboard.
+    if (pathname === '/dashboard' && token?.role === 'TEACHER') {
+      return NextResponse.redirect(new URL('/teachers/profile', req.url));
+    }
+
+    // Allow the request to proceed if no redirect is needed.
+    return NextResponse.next();
+  },
+  {
+    callbacks: {
+      /**
+       * This callback decides if the user is authorized to access a page.
+       * If it returns `false`, the user is redirected to the sign-in page.
+       * If it returns `true`, the middleware function is executed.
+       */
+      authorized: ({ token }) => {
+        // `!!token` converts the token (or null) to a boolean.
+        // If a token exists, the user is considered authenticated.
+        return !!token;
+      },
+    },
+    pages: {
+      // Specifies the sign-in page for unauthenticated users.
+      signIn: '/auth/signin',
+    },
+  }
+);
+
+// The middleware to run on specific paths.
 export const config = {
   matcher: [
-    "/dashboard/:path*",
-    "/bookings/:path*",
-    "/teachers/profile/:path*",
-  ],
-};
-*/
-
-// Just let everything through for now until Samuel implements Auth.
-// Only for checking that the dashboard is displaying correctly.
-
-import type { NextRequest } from "next/server";
-import { NextResponse } from "next/server";
-
-export function middleware(req: NextRequest) {
-  return NextResponse.next();
-}
-
-export const config = {
-  matcher: [
-    "/dashboard/:path*",
-    "/bookings/:path*",
-    "/teachers/profile/:path*",
+    '/dashboard',
+    '/bookings/:path*',
+    '/teachers/:path*',
   ],
 };
