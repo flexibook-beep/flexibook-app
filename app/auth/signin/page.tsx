@@ -108,9 +108,17 @@ export default function SignInPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
+                <div className="text-right text-sm">
+                  <Link href="/auth/forgot-password" className="underline">
+                    Forgot password?
+                  </Link>
+                </div>
               </div>
               {error && <p className="text-sm text-red-500">{error}</p>}
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button 
+              type="submit" 
+              className="w-full bg-gradient-to-r from-gray-800 to-gray-900 hover:from-gray-900 hover:to-black text-white shadow-lg shadow-gray-400/20 hover:shadow-xl hover:shadow-gray-500/30 rounded-xl px-6 font-bold transition-all duration-300 hover:-translate-y-0.5" 
+              disabled={loading}>
                 {loading ? "Signing In..." : "Sign In"}
               </Button>
             </form>
