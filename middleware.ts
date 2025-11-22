@@ -11,7 +11,7 @@ export default withAuth(
     const token = (req as any).nextauth.token;
 
     // Redirect students trying to access teacher routes.
-    if (pathname.startsWith('/teachers') && token?.role === 'STUDENT') {
+    if (pathname.startsWith('/teachers/profile/') && token?.role === 'STUDENT') {
       return NextResponse.redirect(new URL('/dashboard', req.url));
     }
 
