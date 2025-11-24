@@ -19,6 +19,7 @@ export default function TeacherProfilePage() {
     languages: [] as string[],
     yearsExperience: 0,
     bufferTime: 10,
+    isActive: false
   })
   const [languageInput, setLanguageInput] = useState("")
 
@@ -37,6 +38,7 @@ export default function TeacherProfilePage() {
           languages: data.teacher.languages || [],
           yearsExperience: data.teacher.yearsExperience || 0,
           bufferTime: data.teacher.bufferTime,
+          isActive: data.teacher.isActive || false,
         })
       }
     } catch (error) {
@@ -184,8 +186,8 @@ export default function TeacherProfilePage() {
                   className="h-12 rounded-xl border-2 border-gray-200 text-base"
                   style={{ fontFamily: "'Inter', sans-serif" }}
                 />
-                <Button 
-                  type="button" 
+                <Button
+                  type="button"
                   onClick={addLanguage}
                   className="bg-gradient-to-r from-gray-800 to-gray-900 hover:from-gray-900 hover:to-black text-white rounded-xl px-8 font-bold h-12"
                   style={{ fontFamily: "'Inter', sans-serif" }}
@@ -248,9 +250,25 @@ export default function TeacherProfilePage() {
               </p>
             </div>
 
+            <div className="space-y-3">
+              <div className="flex items-center justify-between w-full">
+                <Label htmlFor="isActive" className="text-base font-bold text-gray-900" style={{ fontFamily: "'Inter', sans-serif" }}>Active Status</Label>
+                <button
+                  type="button"
+                  id="isActive"
+                  aria-pressed={formData.isActive}
+                  onClick={() => setFormData({ ...formData, isActive: !formData.isActive })}
+                  className={`inline-flex items-center justify-center h-12 px-8 rounded-2xl font-bold text-base tracking-wide transition-colors duration-300 border-2 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 ${formData.isActive ? 'bg-green-600 hover:bg-green-700 text-white border-green-700 shadow-lg' : 'bg-gray-200 hover:bg-gray-300 text-gray-800 border-gray-300'}`}
+                  style={{ fontFamily: "'Inter', sans-serif" }}
+                >
+                  {formData.isActive ? 'Active' : 'Inactive'}
+                </button>
+              </div>
+            </div>
+
             <div className="flex gap-4 pt-6">
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 disabled={saving}
                 className="bg-gradient-to-r from-gray-800 to-gray-900 hover:from-gray-900 hover:to-black text-white shadow-lg rounded-xl px-10 h-12 font-bold text-base transition-all duration-300"
                 style={{ fontFamily: "'Inter', sans-serif" }}
