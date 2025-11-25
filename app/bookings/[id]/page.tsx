@@ -348,7 +348,7 @@ export default function BookingDetailPage() {
                 </>
               )}
 
-              {booking.status === "CONFIRMED" &&
+              {(booking.status === "CONFIRMED" || booking.status === 'RESCHEDULED') &&
                 new Date(booking.startTime) > new Date() && (
                   <>
                     <Dialog open={rescheduleOpen} onOpenChange={setRescheduleOpen}>

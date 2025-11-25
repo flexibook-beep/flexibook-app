@@ -89,7 +89,7 @@ export async function POST(
     const dayOfWeek = startTime.getDay() // 0-6 (Sunday = 0)
     const timeStr = startTime.toTimeString().substring(0, 5) // HH:mm
     
-    // booking.teacherId refers to User.id; Availability.teacherId expects Teacher.id
+    // Get teacher's user id for availability check
     const teacherProfile = await prisma.teacher.findUnique({
       where: { userId: booking.teacherId },
     })
