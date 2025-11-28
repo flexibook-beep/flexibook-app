@@ -17,10 +17,23 @@ export async function GET(req: NextRequest) {
 
     const { searchParams } = new URL(req.url);
     const statusParam = searchParams.get("status");
+    const teacherId = searchParams.get("teacherId")
 
-    const where: any = {
-      studentId: session.user.id,
-    };
+
+    // const where: any = {
+    //   studentId: session.user.id,
+    // };
+    const where: any = {}
+
+    if (session.user.role === "STUDENT") {
+      where.studentId = session.user.id
+    } else if (session.user.role === "TEACHER") {
+      where.teacherId = session.user.id
+    }
+
+    if (teacherId) {
+      where.teacherId = teacherId
+    }
 
     if (statusParam && statusParam !== "ALL") {
       // Match Prisma enum names exactly
