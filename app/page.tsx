@@ -130,7 +130,7 @@ export default function Home() {
           </p>
 
           <div className="flex gap-5 justify-center mb-20">
-            <Link href="/dashboard?role=student">
+            <Link href="/auth/signup/student">
               {/*<Link href="/auth/signup?role=student">*/}
               <Button
                 size="lg"
@@ -141,7 +141,7 @@ export default function Home() {
               </Button>
             </Link>
 
-            <Link href="/dashboard?role=teacher">
+            <Link href="/auth/signup/teacher">
               {/*<Link href="/auth/signup?role=teacher">*/}
               <Button
                 size="lg"

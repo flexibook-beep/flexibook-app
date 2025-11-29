@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signIn, useSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,57 +15,63 @@ import {
 } from "@/components/ui/card";
 import Link from "next/link";
 
-export default function SignInPage() {
+export default function TeacherSignUpPage() {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (status === "authenticated") {
-      if (session.user.role === "TEACHER") {
-        router.push("/teachers/profile");
-      } else {
-        // Default to student dashboard
-        router.push("/dashboard");
-      }
-    }
-  }, [status, session, router]);
-
-  const handleCredentialsSignIn = async (e: React.FormEvent) => {
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
-    const result = await signIn("credentials", {
-      redirect: false,
-      email,
-      password,
+    const response = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name,
+        email,
+        password,
+        role: "TEACHER",
+      }),
     });
 
-    if (result?.error) {
-      setError(result.error);
+    if (response.ok) {
+      // After successful sign-up, sign in the user
+      const result = await signIn("credentials", {
+        redirect: false,
+        email,
+        password,
+      });
+
+      if (result?.error) {
+        setError(result.error);
+      } else {
+        router.push("/teachers/profile");
+      }
+    } else {
+      const data = await response.json();
+      setError(data.error || data.message || "Something went wrong");
     }
 
     setLoading(false);
   };
 
   const handleGoogleSignIn = () => {
-    signIn("google", { callbackUrl: "/dashboard" });
+    signIn("google", { callbackUrl: "/teachers/profile" });
   };
-
-  if (status === "loading" || status === "authenticated") {
-    return <div>Loading...</div>; // Or a spinner component
-  }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <Card className="w-[30%] max-w-md">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-center">
-            Sign In to Flexibook
+            Create a Teacher Account
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -75,7 +81,7 @@ export default function SignInPage() {
               className="w-full"
               onClick={handleGoogleSignIn}
             >
-              Sign in with Google
+              Sign up with Google
             </Button>
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
@@ -87,7 +93,18 @@ export default function SignInPage() {
                 </span>
               </div>
             </div>
-            <form onSubmit={handleCredentialsSignIn} className="space-y-4">
+            <form onSubmit={handleSignUp} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Name</Label>
+                <Input
+                  id="name"
+                  type="text"
+                  placeholder="John Doe"
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -108,27 +125,22 @@ export default function SignInPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
-                <div className="text-right text-sm">
-                  <Link href="/auth/forgot-password" className="underline">
-                    Forgot password?
-                  </Link>
-                </div>
               </div>
               {error && <p className="text-sm text-red-500">{error}</p>}
               <Button 
               type="submit" 
               className="w-full bg-gradient-to-r from-gray-800 to-gray-900 hover:from-gray-900 hover:to-black text-white shadow-lg shadow-gray-400/20 hover:shadow-xl hover:shadow-gray-500/30 rounded-xl px-6 font-bold transition-all duration-300 hover:-translate-y-0.5" 
               disabled={loading}>
-                {loading ? "Signing In..." : "Sign In"}
+                {loading ? "Creating Account..." : "Create Account"}
               </Button>
             </form>
           </div>
         </CardContent>
         <CardFooter className="text-center text-sm">
           <p>
-            Don't have an account?{" "}
-            <Link href="/auth/signup" className="underline">
-              Sign up
+            Already have an account?{" "}
+            <Link href="/auth/signin" className="underline">
+              Sign in
             </Link>
           </p>
         </CardFooter>

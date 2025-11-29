@@ -15,11 +15,6 @@ export default withAuth(
       return NextResponse.redirect(new URL('/dashboard', req.url));
     }
 
-    // Redirect teachers trying to access the student dashboard.
-    if (pathname === '/dashboard' && token?.role === 'TEACHER') {
-      return NextResponse.redirect(new URL('/teachers/profile', req.url));
-    }
-
     // Allow the request to proceed if no redirect is needed.
     return NextResponse.next();
   },

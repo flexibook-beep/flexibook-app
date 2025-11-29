@@ -1,20 +1,16 @@
 import { Navbar } from "@/components/navbar";
 import { StudentDashboard } from "@/components/dashboard/student-dashboard";
 import { TeacherDashboard } from "@/components/dashboard/teacher-dashboard";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
-interface Props {
-  searchParams: { role?: string };
-}
+export default async function DashboardPage() {
+  const session = await getServerSession(authOptions)
 
-export default function DashboardPage({ searchParams }: Props) {
-  // TEMPORARY FAKE SESSION (delete this entire block after auth works)
-  const roleFromQuery = searchParams.role || "STUDENT";
-
-  const session = {
-    user: {
-      role: roleFromQuery.toUpperCase(), // STUDENT or TEACHER
-    },
-  };
+  if(!session) {
+    redirect('/auth/signin')
+  }
 
   return (
     <div className="min-h-screen relative">

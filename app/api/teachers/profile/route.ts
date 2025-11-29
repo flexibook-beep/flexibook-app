@@ -43,12 +43,14 @@ export async function PATCH(req: NextRequest) {
       languages: string[]
       yearsExperience: number
       bufferTime: number
+      isActive: boolean
     }> = {
       bio: body.bio,
       hourlyRate: body.hourlyRate,
       languages: body.languages,
       yearsExperience: body.yearsExperience,
       bufferTime: body.bufferTime,
+      isActive: body.isActive,
     }
 
     const updatedTeacher = await prisma.teacher.update({
