@@ -89,6 +89,92 @@ export function Navbar() {
               </Button>
             </Link>
           ))}
+
+          {/* Avatar Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className="relative h-10 w-10 rounded-full hover:bg-gray-900/10 transition-all duration-300"
+              >
+                <Avatar className="h-10 w-10 ring-2 ring-gray-300 hover:ring-gray-400 transition-all duration-300">
+                  <AvatarImage src={session.user.image || undefined} />
+                  <AvatarFallback
+                    className="bg-gradient-to-br from-gray-800 to-gray-900 text-white font-black text-base"
+                    style={{ fontFamily: "'Inter', sans-serif" }}
+                  >
+                    {initials}
+                  </AvatarFallback>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="w-64 backdrop-blur-xl bg-white/95 border-2 border-gray-200 rounded-2xl p-2 shadow-2xl"
+            >
+              <div className="flex items-center justify-start gap-3 p-3 mb-2">
+                <Avatar className="h-12 w-12 ring-2 ring-gray-200">
+                  <AvatarImage src={session.user.image || undefined} />
+                  <AvatarFallback
+                    className="bg-gradient-to-br from-gray-800 to-gray-900 text-white font-black"
+                    style={{ fontFamily: "'Inter', sans-serif" }}
+                  >
+                    {initials}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col space-y-0.5 leading-tight">
+                  <p
+                    className="font-black text-gray-900 text-base"
+                    style={{ fontFamily: "'Inter', sans-serif" }}
+                  >
+                    {session.user.name}
+                  </p>
+                  <p
+                    className="text-sm text-gray-600 font-medium"
+                    style={{ fontFamily: "'Inter', sans-serif" }}
+                  >
+                    {session.user.email}
+                  </p>
+                  <p
+                    className="text-xs text-gray-500 capitalize font-bold mt-1 px-2 py-0.5 bg-gray-100 rounded-full inline-block w-fit"
+                    style={{ fontFamily: "'Inter', sans-serif" }}
+                  >
+                    {session.user.role?.toLowerCase()}
+                  </p>
+                </div>
+              </div>
+              <DropdownMenuSeparator className="bg-gray-200" />
+              {session.user.role === "TEACHER" && (
+                <>
+                  <Link href="/teachers/profile">
+                    <DropdownMenuItem
+                      className="rounded-xl my-1 py-2.5 font-semibold text-gray-700 hover:bg-gray-100 cursor-pointer"
+                      style={{ fontFamily: "'Inter', sans-serif" }}
+                    >
+                      Profile Settings
+                    </DropdownMenuItem>
+                  </Link>
+                  <Link href="/teachers/availability">
+                    <DropdownMenuItem
+                      className="rounded-xl my-1 py-2.5 font-semibold text-gray-700 hover:bg-gray-100 cursor-pointer"
+                      style={{ fontFamily: "'Inter', sans-serif" }}
+                    >
+                      Manage Availability
+                    </DropdownMenuItem>
+                  </Link>
+                  <DropdownMenuSeparator className="bg-gray-200" />
+                </>
+              )}
+              <DropdownMenuItem
+                onClick={() => signOut({ callbackUrl: "/" })}
+                className="rounded-xl my-1 py-2.5 font-bold text-red-600 hover:bg-red-50 cursor-pointer"
+                style={{ fontFamily: "'Inter', sans-serif" }}
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Sign Out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         {/* Mobile Hamburger */}
